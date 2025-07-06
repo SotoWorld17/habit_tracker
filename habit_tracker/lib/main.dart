@@ -3,6 +3,7 @@ import 'UI/sign_up.dart';
 import 'UI/login.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
+import 'habit_tracker_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         '/login-screen': (context) => const LoginScreen(),
         '/register-screen': (context) => const RegisterScreen(),
         '/home': (context) => const MyHomePage(title: 'Habit Tracker'),
+        '/habit-tracker': (context) => const HabitTrackerScreen(username: 'Usuario'),
       },
     );
   }

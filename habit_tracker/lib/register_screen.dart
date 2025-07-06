@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'habit_tracker_screen.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -11,6 +13,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   double _age = 25; // Edad predeterminada establecida en 25
   String _country = 'Estados Unidos';
   List<String> _countries = [];
@@ -19,12 +22,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     'Despertar Temprano',
     'Hacer Ejercicio',
     'Beber Agua',
-    'Meditación',
+    'Meditar',
     'Leer un Libro',
-    'Practicar la Gratitud',
+    'Practicar Gratitud',
     'Dormir 8 Horas',
-    'Alimentarse Saludablemente',
-    'Escribir en un Diario',
+    'Comer Saludable',
+    'Escribir un Diario',
     'Caminar 10,000 Pasos'
   ];
 
@@ -37,6 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _fetchCountries() async {
     List<String> subsetCountries = [
       'Estados Unidos',
+      'España',
       'Canadá',
       'Reino Unido',
       'Australia',
@@ -55,9 +59,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
+  void _showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
   void _register() async {
-    // lógica de registro por ahora
-    print("lógica de registro aquí");
+    final name = _nameController.text;
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+    
+    if (username.isEmpty || name.isEmpty || password.isEmpty) {
+      _showToast('Por favor, completa todos los campos');
+      return;
+    }
+    
+    if (password.length < 6) {
+      _showToast('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HabitTrackerScreen(username: username),
+      ),
+    );
   }
 
   @override
@@ -103,6 +136,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _buildInputField(
                     _usernameController, 'Nombre de Usuario', Icons.alternate_email),
                 const SizedBox(height: 10),
+                _buildPasswordField(),
+                const SizedBox(height: 10),
                 Text('Edad: ${_age.round()}',
                     style: const TextStyle(color: Colors.white, fontSize: 18)),
                 Slider(
@@ -129,7 +164,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: availableHabits.map((habit) {
                     final isSelected = selectedHabits.contains(habit);
                     return GestureDetector(
-                      onTap: () => null,
+                      onTap: () {
+                        setState(() {
+                          if (isSelected) {
+                            selectedHabits.remove(habit);
+                          } else {
+                            selectedHabits.add(habit);
+                          }
+                        });
+                      },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 10),
@@ -193,6 +236,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.blue.shade700),
           hintText: hint,
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: TextField(
+        controller: _passwordController,
+        obscureText: true,
+        decoration: InputDecoration(
+          prefixIcon: Icon(Icons.lock, color: Colors.blue.shade700),
+          hintText: 'Contraseña',
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 15),

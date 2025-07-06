@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
         savedPassword == passwordController.text.trim()) {
       // Login exitoso
       _showSuccessDialog('¡Inicio de sesión exitoso!');
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/habit-tracker');
     } else {
       _showErrorDialog('Correo electrónico o contraseña incorrectos');
     }

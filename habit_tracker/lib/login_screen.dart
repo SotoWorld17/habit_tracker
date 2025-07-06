@@ -17,8 +17,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final String defaultPassword = 'password123';
 
   void _login() {
-    // La lógica de inicio de sesión va aquí
-    print("login logic here");
+    // Validación básica
+    if (_usernameController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor completa todos los campos')),
+      );
+      return;
+    }
+
+    // Verificar credenciales predeterminadas
+    if (_usernameController.text.trim() == defaultUsername && 
+        _passwordController.text.trim() == defaultPassword) {
+      // Login exitoso
+      Navigator.pushReplacementNamed(context, '/habit-tracker');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Credenciales incorrectas')),
+      );
+    }
   }
 
   @override
