@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'add_habit_screen.dart';
 
 class HabitTrackerScreen extends StatefulWidget {
   final String username;
@@ -11,11 +12,25 @@ class HabitTrackerScreen extends StatefulWidget {
 class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   Map<String, String> selectedHabitsMap = {};
   Map<String, String> completedHabitsMap = {};
-  String name = '';
 
   @override
   void initState() {
     super.initState();
+    // Cargar algunos hábitos de ejemplo para demostración
+    _loadSampleHabits();
+  }
+
+  void _loadSampleHabits() {
+    setState(() {
+      selectedHabitsMap = {
+        'Ejercicio Matutino': 'FF5722', // Deep Orange
+        'Beber Agua': '2196F3', // Blue
+        'Leer 30 minutos': '4CAF50', // Green
+      };
+      completedHabitsMap = {
+        'Meditar': '9C27B0', // Purple
+      };
+    });
   }
 
   Future<void> _saveHabits() async {
@@ -48,13 +63,14 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
       appBar: AppBar(
         backgroundColor: Colors.blue.shade700,
         title: Text(
-          name.isNotEmpty ? name : 'Cargando...',
+          widget.username.isNotEmpty ? '${widget.username} - Hábitos' : 'Rastreador de Hábitos',
           style: const TextStyle(
             fontSize: 24,
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         automaticallyImplyLeading: true,
       ),
       body: Column(
@@ -177,14 +193,19 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                 ),
         ],
       ),
-      floatingActionButton: selectedHabitsMap.isEmpty
-          ? FloatingActionButton(
-              onPressed: () {},
-              backgroundColor: Colors.blue.shade700,
-              tooltip: 'Agregar Hábitos',
-              child: const Icon(Icons.add),
-            )
-          : null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddHabitScreen(),
+            ),
+          );
+        },
+        backgroundColor: Colors.blue.shade700,
+        tooltip: 'Agregar Hábitos',
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
 
@@ -193,9 +214,11 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       color: color,
-      child: Container(
-        height: 60, // Ajustar la altura para tarjetas más gruesas.
+      elevation: 4,
+      child: SizedBox(
+        height: 70, // Ajustar la altura para tarjetas más gruesas.
         child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           title: Text(
             title.toUpperCase(),
             style: const TextStyle(
@@ -205,8 +228,30 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
             ),
           ),
           trailing: isCompleted
-              ? const Icon(Icons.check_circle, color: Colors.green, size: 28)
-              : null,
+              ? Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(
+                    Icons.check_circle,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                )
+              : Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(
+                    Icons.radio_button_unchecked,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
         ),
       ),
     );

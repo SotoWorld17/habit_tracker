@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'habit_tracker_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,22 +18,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final String defaultPassword = 'password123';
 
   void _login() {
-    // Validación básica
-    if (_usernameController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor completa todos los campos')),
+    // La lógica de inicio de sesión va aquí
+    print("la lógica de inicio de sesión aquí");
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+    if (username == defaultUsername && password == defaultPassword) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HabitTrackerScreen(username: username),
+        ),
       );
-      return;
-    }
-
-    // Verificar credenciales predeterminadas
-    if (_usernameController.text.trim() == defaultUsername && 
-        _passwordController.text.trim() == defaultPassword) {
-      // Login exitoso
-      Navigator.pushReplacementNamed(context, '/habit-tracker');
     } else {
+      // Mostrar mensaje de error si las credenciales son incorrectas
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Credenciales incorrectas')),
+        const SnackBar(
+          content: Text('Credenciales incorrectas. Usa: testuser / password123'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -73,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       prefixIcon:
                           Icon(Icons.email, color: Colors.blue.shade700),
-                      hintText: 'Ingresa el nombre de usuario',
+                      hintText: 'Introducir Nombre de Usuario',
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 15),
@@ -91,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: true,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock, color: Colors.blue.shade700),
-                      hintText: 'Ingresa la contraseña',
+                      hintText: 'Introducir Contraseña',
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 15),
@@ -103,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // La lógica para recuperar la contraseña se puede agregar aquí
+                      // La lógica para olvidar la contraseña se puede agregar aquí
                     },
                     child: const Text(
                       '¿Olvidaste tu contraseña?',
