@@ -1,19 +1,17 @@
-// country_list.dart
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 Future<List<String>> fetchCountries() async {
-  List<String> countries = [
-    'Estados Unidos',
-    'Canadá',
-    'Reino Unido',
-    'Australia',
-    'India',
-    'Alemania',
-    'Francia',
-    'Japón',
-    'China',
-    'Brasil',
-    'Sudáfrica'
-  ];
+  final response =
+      await http.get(Uri.parse('https://restcountries.com/v3.1/all?fields=name'));
 
-  return countries;
+  if (response.statusCode == 200) {
+    List<dynamic> countriesJson = json.decode(response.body);
+    List<String> countryList = countriesJson
+        .map((country) => country['name']['common'] as String)
+        .toList();
+    return countryList;
+  } else {
+    throw Exception('No se pudieron cargar los países');
+  }
 }
