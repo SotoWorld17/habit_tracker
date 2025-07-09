@@ -1,11 +1,15 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'country_list.dart';
 import 'habit_tracker_screen.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
-
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
@@ -13,50 +17,49 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
   double _age = 25; // Edad predeterminada establecida en 25
   String _country = 'Estados Unidos';
   List<String> _countries = [];
   List<String> selectedHabits = [];
   List<String> availableHabits = [
-    'Despertar Temprano',
-    'Hacer Ejercicio',
-    'Beber Agua',
+    'Despertarse temprano',
+    'Hacer ejercicio',
+    'Beber agua',
     'Meditar',
-    'Leer un Libro',
-    'Practicar Gratitud',
-    'Dormir 8 Horas',
-    'Comer Saludable',
-    'Escribir un Diario',
-    'Caminar 10,000 Pasos'
+    'Leer un libro',
+    'Practicar gratitud',
+    'Dormir 8 horas',
+    'Comer sano',
+    'Escribir un diario',
+    'Caminar 10,000 pasos'
   ];
+  final Map<String, Color> _habitColors = {
+    'Amber': Colors.amber,
+    'Red Accent': Colors.redAccent,
+    'Light Blue': Colors.lightBlue,
+    'Light Green': Colors.lightGreen,
+    'Purple Accent': Colors.purpleAccent,
+    'Orange': Colors.orange,
+    'Teal': Colors.teal,
+    'Deep Purple': Colors.deepPurple,
+  };
 
   @override
   void initState() {
     super.initState();
-    _fetchCountries();
+    _loadCountries();
   }
 
-  Future<void> _fetchCountries() async {
-    List<String> subsetCountries = [
-      'Estados Unidos',
-      'España',
-      'Canadá',
-      'Reino Unido',
-      'Australia',
-      'India',
-      'Alemania',
-      'Francia',
-      'Japón',
-      'China',
-      'Brasil',
-      'Sudáfrica'
-    ];
-    setState(() {
-      _countries = subsetCountries;
-      _countries.sort();
-      _country = _countries.isNotEmpty ? _countries[0] : 'Estados Unidos';
-    });
+  Future<void> _loadCountries() async {
+    try {
+      List<String> countries = await fetchCountries();
+      setState(() {
+        _countries = countries;
+      });
+    } catch (e) {
+      // Manejar error
+      _showToast('Error al obtener los países');
+    }
   }
 
   void _showToast(String message) {
@@ -73,18 +76,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _register() async {
     final name = _nameController.text;
     final username = _usernameController.text;
-    final password = _passwordController.text;
-    
-    if (username.isEmpty || name.isEmpty || password.isEmpty) {
+
+    if (username.isEmpty || name.isEmpty) {
       _showToast('Por favor, completa todos los campos');
       return;
     }
-    
-    if (password.length < 6) {
-      _showToast('La contraseña debe tener al menos 6 caracteres');
-      return;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Asigna colores aleatorios a los hábitos seleccionados.
+    Map<String, String> selectedHabitsMap = {};
+    final random = Random();
+    final colorKeys = _habitColors.keys.toList();
+    for (var habit in selectedHabits) {
+      var randomColor =
+          _habitColors[colorKeys[random.nextInt(colorKeys.length)]]!;
+      selectedHabitsMap[habit] = randomColor.value.toRadixString(16);
     }
-    
+
+    // Guarda la información del usuario y los hábitos en las preferencias compartidas.
+    await prefs.setString('name', name);
+    await prefs.setString('username', username);
+    await prefs.setDouble('age', _age);
+    await prefs.setString('country', _country);
+    await prefs.setString('selectedHabitsMap', jsonEncode(selectedHabitsMap));
+    // await prefs.setStringList('selectedHabits', selectedHabits);
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -93,12 +110,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  void _toggleHabitSelection(String habit) {
+    setState(() {
+      if (selectedHabits.contains(habit)) {
+        selectedHabits.remove(habit);
+      } else {
+        selectedHabits.add(habit);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue.shade700,
-        title: const Text(
+        title: Text(
           'Registro',
           style: TextStyle(
             fontSize: 32,
@@ -107,11 +134,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              MaterialPageRoute(builder: (context) => LoginScreen()),
             );
           },
         ),
@@ -132,17 +159,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildInputField(_nameController, 'Nombre', Icons.person),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 _buildInputField(
-                    _usernameController, 'Nombre de Usuario', Icons.alternate_email),
-                const SizedBox(height: 10),
-                _buildPasswordField(),
-                const SizedBox(height: 10),
+                    _usernameController, 'Nombre de usuario', Icons.alternate_email),
+                SizedBox(height: 10),
                 Text('Edad: ${_age.round()}',
-                    style: const TextStyle(color: Colors.white, fontSize: 18)),
+                    style: TextStyle(color: Colors.white, fontSize: 18)),
                 Slider(
                   value: _age,
-                  min: 14,
+                  min: 21,
                   max: 100,
                   divisions: 79,
                   activeColor: Colors.blue.shade600,
@@ -153,10 +178,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     });
                   },
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 _buildCountryDropdown(),
-                const SizedBox(height: 10),
-                const Text('Selecciona tus Hábitos',
+                SizedBox(height: 10),
+                Text('Selecciona tus hábitos',
                     style: TextStyle(color: Colors.white, fontSize: 18)),
                 Wrap(
                   spacing: 10,
@@ -164,18 +189,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: availableHabits.map((habit) {
                     final isSelected = selectedHabits.contains(habit);
                     return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            selectedHabits.remove(habit);
-                          } else {
-                            selectedHabits.add(habit);
-                          }
-                        });
-                      },
+                      onTap: () => _toggleHabitSelection(habit),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         decoration: BoxDecoration(
                           color:
                               isSelected ? Colors.blue.shade600 : Colors.white,
@@ -194,7 +211,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
                     onPressed: _register,
@@ -203,10 +220,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 80, vertical: 15),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Registrar',
                       style: TextStyle(
                         fontSize: 18,
@@ -237,28 +254,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           prefixIcon: Icon(icon, color: Colors.blue.shade700),
           hintText: hint,
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: TextField(
-        controller: _passwordController,
-        obscureText: true,
-        decoration: InputDecoration(
-          prefixIcon: Icon(Icons.lock, color: Colors.blue.shade700),
-          hintText: 'Contraseña',
-          border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
       ),
     );
@@ -266,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _buildCountryDropdown() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
@@ -275,7 +271,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         value: _country,
         icon: Icon(Icons.arrow_drop_down, color: Colors.blue.shade700),
         isExpanded: true,
-        underline: const SizedBox(),
+        underline: SizedBox(),
         items: _countries.map((String value) {
           return DropdownMenuItem<String>(
             value: value,

@@ -19,10 +19,10 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // Configurar la página inicial como LoginScreen
-      home: const LoginScreen(),
+      home: LoginScreen(),
       routes: {
-        '/login-screen': (context) => const LoginScreen(),
-        '/register-screen': (context) => const RegisterScreen(),
+        '/login-screen': (context) => LoginScreen(),
+        '/register-screen': (context) => RegisterScreen(),
         '/habit-tracker': (context) => const HabitTrackerScreen(username: 'Usuario'),
       },
     );

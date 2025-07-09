@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'habit_tracker_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -17,12 +18,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final String defaultUsername = 'testuser';
   final String defaultPassword = 'password123';
 
-  void _login() {
-    // La lógica de inicio de sesión va aquí
-    print("la lógica de inicio de sesión aquí");
+  void _login() async {
     final username = _usernameController.text;
     final password = _passwordController.text;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Verificar contra las credenciales predeterminadas
     if (username == defaultUsername && password == defaultPassword) {
+      await prefs.setString('name', 'Usuario de Prueba');
+      await prefs.setString('username', 'testuser');
+      await prefs.setDouble('age', 25);
+      await prefs.setString('country', 'Estados Unidos');
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -30,12 +38,15 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } else {
-      // Mostrar mensaje de error si las credenciales son incorrectas
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Credenciales incorrectas. Usa: testuser / password123'),
-          backgroundColor: Colors.red,
-        ),
+      // Vaciar preferencias compartidas
+      await prefs.clear();
+      Fluttertoast.showToast(
+        msg: "El nombre de usuario o la contraseña son incorrectos",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
     }
   }
@@ -57,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   'Habitt',
                   style: TextStyle(
                     fontSize: 32,
@@ -65,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: 30),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -76,14 +87,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       prefixIcon:
                           Icon(Icons.email, color: Colors.blue.shade700),
-                      hintText: 'Introducir Nombre de Usuario',
+                      hintText: 'Ingrese el nombre de usuario',
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 15),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -94,27 +105,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: true,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock, color: Colors.blue.shade700),
-                      hintText: 'Introducir Contraseña',
+                      hintText: 'Ingrese la contraseña',
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 15),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // La lógica para olvidar la contraseña se puede agregar aquí
+                      // La lógica para recuperar la contraseña se puede añadir aquí
                     },
-                    child: const Text(
-                      '¿Olvidaste tu contraseña?',
+                    child: Text(
+                      '¿Olvidaste la contraseña?',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
@@ -122,10 +133,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 80, vertical: 15),
+                    padding: EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Iniciar sesión',
                     style: TextStyle(
                       fontSize: 18,
@@ -134,29 +144,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
+                SizedBox(height: 20),
+                Text(
                   'o',
                   style: TextStyle(color: Colors.white70),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 OutlinedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => const RegisterScreen()),
+                      MaterialPageRoute(builder: (context) => RegisterScreen()),
                     );
                   },
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white),
+                    side: BorderSide(color: Colors.white),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 70, vertical: 15),
+                    padding: EdgeInsets.symmetric(horizontal: 70, vertical: 15),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Registrarse',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
