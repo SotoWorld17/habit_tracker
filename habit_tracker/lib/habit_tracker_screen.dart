@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'add_habit_screen.dart';
 import 'login_screen.dart';
+import 'notifications_screen.dart';
 import 'personal_info_screen.dart';
 import 'reports_screen.dart';
 
@@ -48,7 +49,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   Color _getColorFromHex(String hexColor) {
     hexColor = hexColor.replaceAll('#', '');
     if (hexColor.length == 6) {
-      hexColor = 'FF$hexColor'; // Agregar opacidad si no está incluida.
+      hexColor = 'FF$hexColor'; // Agrega opacidad si no está incluida.
     }
     return Color(int.parse('0x$hexColor'));
   }
@@ -62,7 +63,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
         print('Error al analizar el color para $habit: $e');
       }
     }
-    return Colors.blue; // Color por defecto en caso de error.
+    return Colors.blue; // Color predeterminado en caso de error.
   }
 
   @override
@@ -128,7 +129,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.analytics),
-              title: const Text('Reportes'),
+              title: const Text('Informes'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -141,13 +142,21 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
             ListTile(
               leading: Icon(Icons.notifications),
               title: Text('Notificaciones'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => NotificationsScreen()),
+                );
+              },
             ),
-ListTile(
-  leading: const Icon(Icons.logout),
-  title: const Text('Cerrar Sesión'),
-  onTap: () {
-    _signOut(context);
-  },
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Cerrar Sesión'),
+              onTap: () {
+                _signOut(context);
+              },
             ),
           ],
         ),
@@ -227,7 +236,7 @@ ListTile(
               ? const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
-                    'Desliza hacia la derecha en una actividad para marcarla como hecha.',
+                    'Desliza a la derecha en una actividad para marcarla como hecha.',
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 )
@@ -308,7 +317,7 @@ ListTile(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       color: color,
       child: Container(
-        height: 60, // Ajustar la altura para tarjetas más gruesas.
+        height: 60, // Ajusta la altura para tarjetas más gruesas.
         child: ListTile(
           title: Text(
             title.toUpperCase(),
