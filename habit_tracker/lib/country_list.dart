@@ -2,16 +2,19 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<List<String>> fetchCountries() async {
-  final response =
-      await http.get(Uri.parse('https://restcountries.com/v3.1/all?fields=name'));
+  final response = await http.get(Uri.parse('https://restcountries.com/v3.1/all?fields=name'));
 
   if (response.statusCode == 200) {
-    List<dynamic> countriesJson = json.decode(response.body);
+    List<dynamic> countriesJson = json.decode(utf8.decode(response.bodyBytes));
     List<String> countryList = countriesJson
-        .map((country) => country['name']['common'] as String)
+        .map((country) => country['name'] != null && country['name']['common'] != null
+            ? country['name']['common'] as String
+            : '')
+        .where((name) => name.isNotEmpty)
         .toList();
     return countryList;
   } else {
     throw Exception('No se pudieron cargar los países');
   }
 }
+

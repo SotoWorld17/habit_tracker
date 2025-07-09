@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'add_habit_screen.dart';
+import 'login_screen.dart';
+import 'personal_info_screen.dart';
+import 'reports_screen.dart';
 
 class HabitTrackerScreen extends StatefulWidget {
   final String username;
@@ -59,7 +62,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
         print('Error al analizar el color para $habit: $e');
       }
     }
-    return Colors.blue; // Color predeterminado en caso de error.
+    return Colors.blue; // Color por defecto en caso de error.
   }
 
   @override
@@ -76,6 +79,78 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
           ),
         ),
         automaticallyImplyLeading: true,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue.shade700,
+              ),
+              child: const Text(
+                'Menú',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Configurar'),
+              onTap: () async {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddHabitScreen(),
+                  ),
+                ).then((updatedHabits) {
+                  _loadUserData(); // Recargar datos después de regresar
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Información Personal'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PersonalInfoScreen()),
+                ).then((_) {
+                  _loadUserData(); // Recargar datos después de regresar
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.analytics),
+              title: const Text('Reportes'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ReportsScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.notifications),
+              title: Text('Notificaciones'),
+            ),
+ListTile(
+  leading: const Icon(Icons.logout),
+  title: const Text('Cerrar Sesión'),
+  onTap: () {
+    _signOut(context);
+  },
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -137,7 +212,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                     },
                   ),
                 ),
-          Divider(),
+          const Divider(),
           const Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
@@ -209,11 +284,21 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                   _loadUserData(); // Recargar datos después de regresar
                 });
               },
-              child: Icon(Icons.add),
               backgroundColor: Colors.blue.shade700,
               tooltip: 'Agregar Hábitos',
+              child: const Icon(Icons.add),
             )
           : null,
+    );
+  }
+
+  void _signOut(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
     );
   }
 
@@ -234,7 +319,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
             ),
           ),
           trailing: isCompleted
-              ? Icon(Icons.check_circle, color: Colors.green, size: 28)
+              ? const Icon(Icons.check_circle, color: Colors.green, size: 28)
               : null,
         ),
       ),
