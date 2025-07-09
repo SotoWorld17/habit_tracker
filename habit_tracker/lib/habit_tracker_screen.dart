@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'add_habit_screen.dart';
+import 'habit_detail_screen.dart';
 import 'login_screen.dart';
 import 'notifications_screen.dart';
 import 'personal_info_screen.dart';
@@ -316,20 +317,43 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       color: color,
-      child: Container(
-        height: 60, // Ajusta la altura para tarjetas más gruesas.
-        child: ListTile(
-          title: Text(
-            title.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        onTap: () {
+          // Crear los datos del hábito para pasar a la pantalla de detalles
+          final habitData = {
+            'title': title,
+            'description': 'Descripción del hábito: $title',
+            'color': color.value.toRadixString(16),
+            'isCompleted': isCompleted,
+            'streak': 5, // Simulado
+            'category': 'Salud',
+            'difficulty': 'Medio',
+          };
+          
+          // Navegar a la pantalla de detalles
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HabitDetailScreen(habit: habitData),
             ),
+          );
+        },
+        child: Container(
+          height: 60, // Ajusta la altura para tarjetas más gruesas.
+          child: ListTile(
+            title: Text(
+              title.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            trailing: isCompleted
+                ? const Icon(Icons.check_circle, color: Colors.green, size: 28)
+                : const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
           ),
-          trailing: isCompleted
-              ? const Icon(Icons.check_circle, color: Colors.green, size: 28)
-              : null,
         ),
       ),
     );
